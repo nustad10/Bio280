@@ -1,4 +1,4 @@
-// BIO100 Chapters 16–18 — Tricky Multiple‑Choice Bank (40 Qs)
+// BIO100 Chapters 16–18 — Tricky Multiple-Choice Bank (40 Qs)
 // Structure matches the app: { ch, topic, q, options:[{ t, ok, why }] }
 
 export const MCQ = [
@@ -13,7 +13,7 @@ export const MCQ = [
 
   { ch:16, topic:"Endocrine", q:"Which anterior pituitary hormone primarily stimulates the thyroid gland?",
     options:[
-      { t:"TSH (thyroid‑stimulating hormone)", ok:true, why:"TSH targets the thyroid to promote thyroid hormone release." },
+      { t:"TSH (thyroid-stimulating hormone)", ok:true, why:"TSH targets the thyroid to promote thyroid hormone release." },
       { t:"ACTH", ok:false, why:"ACTH targets the adrenal cortex." },
       { t:"FSH", ok:false, why:"FSH acts on gonads (follicles/spermatogenesis)." },
       { t:"ADH", ok:false, why:"ADH is released by posterior pituitary and targets kidneys." },
@@ -54,7 +54,7 @@ export const MCQ = [
   { ch:16, topic:"Endocrine", q:"Which gland produces melatonin for the sleep/wake cycle?",
     options:[
       { t:"Pineal gland", ok:true, why:"The pineal secretes melatonin, helping regulate circadian rhythms." },
-      { t:"Thymus", ok:false, why:"Thymus produces thymosin for T‑cell maturation." },
+      { t:"Thymus", ok:false, why:"Thymus produces thymosin for T-cell maturation." },
       { t:"Parathyroid", ok:false, why:"Parathyroid secretes PTH for calcium regulation." },
       { t:"Pancreas", ok:false, why:"Pancreas produces insulin and glucagon." },
     ] },
@@ -75,7 +75,7 @@ export const MCQ = [
       { t:"ADH — stimulates ovulation", ok:false, why:"LH triggers ovulation; ADH promotes water reabsorption." },
     ] },
 
-  { ch:16, topic:"Endocrine", q:"Select the entirely correct thyroid/para‑thyroid statement:",
+  { ch:16, topic:"Endocrine", q:"Select the entirely correct thyroid/para-thyroid statement:",
     options:[
       { t:"Thyroid hormone: major metabolic regulator; Calcitonin lowers blood Ca²⁺", ok:true, why:"Both pairings are correct." },
       { t:"Thyroid hormone lowers Ca²⁺; PTH raises metabolic rate", ok:false, why:"Swapped actions; PTH affects Ca²⁺; TH affects metabolism." },
@@ -110,7 +110,7 @@ export const MCQ = [
 
   { ch:16, topic:"Skeletal", q:"Which single bone does not articulate with any other bone?",
     options:[
-      { t:"Hyoid", ok:true, why:"Suspended near the larynx; unique non‑articulating bone." },
+      { t:"Hyoid", ok:true, why:"Suspended near the larynx; unique non-articulating bone." },
       { t:"Vomer", ok:false, why:"Vomer articulates within the skull." },
       { t:"Atlas (C1)", ok:false, why:"C1 articulates with skull and C2." },
       { t:"Sternum", ok:false, why:"Articulates with ribs and clavicles." },
@@ -156,7 +156,7 @@ export const MCQ = [
       { t:"A bone cavity housing marrow", ok:false, why:"That’s medullary cavity function." },
     ] },
 
-  { ch:16, topic:"Skeletal", q:"Select the fully accurate appendicular‑skeleton grouping:",
+  { ch:16, topic:"Skeletal", q:"Select the fully accurate appendicular-skeleton grouping:",
     options:[
       { t:"Upper limbs (humerus, radius, ulna, carpals, metacarpals, phalanges)", ok:true, why:"These are upper limb appendicular bones." },
       { t:"Skull, vertebrae, ribs", ok:false, why:"Those are axial bones." },
@@ -174,7 +174,7 @@ export const MCQ = [
 
   { ch:16, topic:"Skeletal", q:"Which bone set belongs to the lower limb?",
     options:[
-      { t:"Femur, tibia, fibula, tarsals, metatarsals, phalanges", ok:true, why:"Complete lower‑limb list." },
+      { t:"Femur, tibia, fibula, tarsals, metatarsals, phalanges", ok:true, why:"Complete lower-limb list." },
       { t:"Humerus, radius, ulna, carpals", ok:false, why:"Upper limb bones." },
       { t:"Clavicle and scapula", ok:false, why:"Pectoral girdle." },
       { t:"Sternum and ribs", ok:false, why:"Axial thoracic cage." },
@@ -184,17 +184,17 @@ export const MCQ = [
     options:[
       { t:"Fibrocartilage pads separating vertebrae that cushion and permit motion", ok:true, why:"Matches function and composition." },
       { t:"Bony ridges that lock vertebrae together", ok:false, why:"Vertebrae articulate via joints and discs." },
-      { t:"Synovial fluid‑filled sacs between ribs", ok:false, why:"Not accurate." },
+      { t:"Synovial fluid-filled sacs between ribs", ok:false, why:"Not accurate." },
       { t:"Ligaments connecting bone to bone", ok:false, why:"Ligaments are distinct connective tissues." },
     ] },
 
   // ===== Muscular & Nervous (Ch.16) =====
   { ch:16, topic:"Muscular", q:"Choose the fully correct statement about muscle types:",
     options:[
-      { t:"Skeletal: striated/voluntary; Cardiac: striated/involuntary; Smooth: non‑striated/involuntary", ok:true, why:"Standard properties of each type." },
+      { t:"Skeletal: striated/voluntary; Cardiac: striated/involuntary; Smooth: non-striated/involuntary", ok:true, why:"Standard properties of each type." },
       { t:"Skeletal and smooth are both voluntary", ok:false, why:"Only skeletal is voluntary." },
-      { t:"Cardiac is non‑striated", ok:false, why:"Cardiac is striated." },
-      { t:"Smooth is striated and voluntary", ok:false, why:"Smooth is non‑striated and involuntary." },
+      { t:"Cardiac is non-striated", ok:false, why:"Cardiac is striated." },
+      { t:"Smooth is striated and voluntary", ok:false, why:"Smooth is non-striated and involuntary." },
     ] },
 
   { ch:16, topic:"Muscular", q:"The functional unit of skeletal muscle contraction is the…",
@@ -248,7 +248,7 @@ export const MCQ = [
 
   { ch:16, topic:"Digestive", q:"Where does most nutrient absorption occur?",
     options:[
-      { t:"Jejunum and ileum", ok:true, why:"Primary small‑intestine regions for absorption." },
+      { t:"Jejunum and ileum", ok:true, why:"Primary small-intestine regions for absorption." },
       { t:"Stomach", ok:false, why:"Minimal absorption; mostly digestion/mixing." },
       { t:"Duodenum exclusively", ok:false, why:"Duodenum focuses on chemical breakdown." },
       { t:"Large intestine", ok:false, why:"Primarily water/electrolyte absorption." },
@@ -265,10 +265,10 @@ export const MCQ = [
 
   { ch:17, topic:"Immune", q:"Pick the best statement about immunity:",
     options:[
-      { t:"Active immunity generates memory; passive immunity is short‑lived and borrowed", ok:true, why:"Only active exposure forms memory cells." },
+      { t:"Active immunity generates memory; passive immunity is short-lived and borrowed", ok:true, why:"Only active exposure forms memory cells." },
       { t:"Passive immunity outlasts active immunity", ok:false, why:"Passive typically lasts weeks." },
-      { t:"Innate defenses are antigen‑specific", ok:false, why:"Innate is nonspecific; adaptive is specific." },
-      { t:"B cells mediate cell‑mediated immunity", ok:false, why:"T cells are cell‑mediated; B cells are humoral." },
+      { t:"Innate defenses are antigen-specific", ok:false, why:"Innate is nonspecific; adaptive is specific." },
+      { t:"B cells mediate cell-mediated immunity", ok:false, why:"T cells are cell-mediated; B cells are humoral." },
     ] },
 
   { ch:17, topic:"Immune", q:"Which pairing is most accurate?",
@@ -276,7 +276,7 @@ export const MCQ = [
       { t:"Thymus — matures T cells; Bone marrow — produces protective cells", ok:true, why:"Primary lymphoid tissue roles." },
       { t:"Spleen — matures T cells; Thymus — filters old RBCs", ok:false, why:"Reversed; spleen filters blood; thymus matures T cells." },
       { t:"Tonsils — absorb dietary fats", ok:false, why:"Tonsils trap pathogens entering pharynx." },
-      { t:"Peyer’s patches — filter blood of worn‑out RBCs", ok:false, why:"That’s the spleen’s job." },
+      { t:"Peyer’s patches — filter blood of worn-out RBCs", ok:false, why:"That’s the spleen’s job." },
     ] },
 
   // ===== Reproduction & Development (Ch.18) =====
@@ -304,7 +304,7 @@ export const MCQ = [
       { t:"Acrosome is in the tail for swimming", ok:false, why:"Acrosome caps the head for penetration." },
     ] },
 
-  { ch:18, topic:"Repro", q:"Pick the fully correct female‑reproductive statement:",
+  { ch:18, topic:"Repro", q:"Pick the fully correct female-reproductive statement:",
     options:[
       { t:"Ovaries make oocytes/hormones; tubes for fertilization; uterus receives/retains/nourishes; vagina for intercourse/childbirth", ok:true, why:"Matches classical roles." },
       { t:"Uterine tubes produce oocytes", ok:false, why:"Oocytes are from ovaries." },
@@ -347,9 +347,9 @@ export const MCQ = [
 
   { ch:16, topic:"Endocrine", q:"Thymosin is primarily involved in…",
     options:[
-      { t:"Maturation of certain white blood cells (T cells)", ok:true, why:"Thymus supports T‑cell maturation." },
+      { t:"Maturation of certain white blood cells (T cells)", ok:true, why:"Thymus supports T-cell maturation." },
       { t:"Regulating circadian rhythm", ok:false, why:"Melatonin handles circadian rhythms." },
-      { t:"Increasing blood Ca²⁺", ok:false, why:"PTH raises Ca²⁺; thymosin is immune‑related." },
+      { t:"Increasing blood Ca²⁺", ok:false, why:"PTH raises Ca²⁺; thymosin is immune-related." },
       { t:"Stimulating ovulation", ok:false, why:"LH triggers ovulation." },
     ] },
 
@@ -361,9 +361,9 @@ export const MCQ = [
       { t:"Humerus and femur", ok:false, why:"Long bones of limbs, not the girdle itself." },
     ] },
 
-  { ch:16, topic:"Skeletal", q:"Select the accurate upper‑limb bone list:",
+  { ch:16, topic:"Skeletal", q:"Select the accurate upper-limb bone list:",
     options:[
-      { t:"Humerus, radius, ulna, carpals, metacarpals, phalanges", ok:true, why:"Standard upper‑limb bones." },
+      { t:"Humerus, radius, ulna, carpals, metacarpals, phalanges", ok:true, why:"Standard upper-limb bones." },
       { t:"Femur, tibia, fibula, tarsals", ok:false, why:"Lower limb bones." },
       { t:"Clavicle, scapula, coccyx", ok:false, why:"Mixed girdle and axial." },
       { t:"Sternum, ribs, vertebrae", ok:false, why:"Axial skeleton." },
@@ -395,7 +395,7 @@ export const MCQ = [
 
   { ch:16, topic:"Respiratory", q:"Which lung lobe count is correct?",
     options:[
-      { t:"Left lung 2 lobes; right lung 3 lobes", ok:true, why:"Cardiac notch reduces left‑lung lobes to two." },
+      { t:"Left lung 2 lobes; right lung 3 lobes", ok:true, why:"Cardiac notch reduces left-lung lobes to two." },
       { t:"Left 3; right 2", ok:false, why:"Reversed of normal anatomy." },
       { t:"Both 3", ok:false, why:"Asymmetry exists: left has 2." },
       { t:"Both 2", ok:false, why:"Right lung has 3 lobes." },
