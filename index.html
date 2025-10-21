@@ -3,21 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BIO100 Flashcards + Tricky Quiz + Learn + Kahoot</title>
-  <!-- Tailwind (CDN for quick dev) -->
+  <title>BIO100 — Flashcards • Learn • Quiz • Kahoot</title>
+
+  <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- React (development builds) -->
+
+  <!-- React (dev builds) -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <!-- Babel for in-browser JSX transform (dev only) -->
+
+  <!-- Babel for in-browser JSX (development only) -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
   <style>
     html, body { background:#0d1117; }
   </style>
+
+  <!-- IMPORTANT: Import questions.js as a module and expose MCQ globally for the Babel script -->
+  <script type="module">
+    import { MCQ } from './questions.js';
+    window.MCQ = MCQ;           // make available to the app script below
+  </script>
 </head>
 <body>
   <div id="root"></div>
 
+  <!-- The whole app (uses window.MCQ) -->
   <script type="text/babel">
     const { useMemo, useState, useEffect, useRef } = React;
 
@@ -46,7 +57,7 @@
       { q: "Number of bones in adult skeleton; axial vs appendicular counts?", a: "Total ≈ 206 bones. Axial 80; Appendicular 126.", topic: "Skeletal", ch: 16 },
       { q: "Function of intervertebral discs?", a: "Fibrocartilage pads between vertebrae that cushion and permit motion.", topic: "Skeletal", ch: 16 },
       { q: "True vs. false vs. floating ribs?", a: "True (7 pairs) attach directly to sternum; False (5 pairs) don’t directly; Floating (2 pairs) lack sternal attachment.", topic: "Skeletal", ch: 16 },
-      { q: "Three muscle types + one key property each", a: "Skeletal (striated, voluntary); Cardiac (striated, involuntary); Smooth (non‑striated, involuntary).", topic: "Muscular", ch: 16 },
+      { q: "Three muscle types + one key property each", a: "Skeletal (striated, voluntary); Cardiac (striated, involuntary); Smooth (non-striated, involuntary).", topic: "Muscular", ch: 16 },
       { q: "Functional unit inside skeletal muscle fibers?", a: "Sarcomere within myofibrils.", topic: "Muscular", ch: 16 },
       { q: "Tendons vs ligaments?", a: "Tendons connect muscle to bone; ligaments connect bone to bone.", topic: "Muscular", ch: 16 },
       { q: "Neuron: dendrites vs axon?", a: "Dendrites receive signals; axon carries impulses away from cell body.", topic: "Nervous", ch: 16 },
@@ -61,8 +72,8 @@
       // Chapter 17 — Immune System
       { q: "Two main functions of lymphatic system?", a: "Return leaked interstitial fluid to blood; immune surveillance/defense.", topic: "Immune", ch: 17 },
       { q: "Primary vs secondary lymphoid tissues?", a: "Primary: bone marrow, thymus (produce/mature cells). Secondary: spleen, MALT (tonsils, Peyer’s patches, appendix).", topic: "Immune", ch: 17 },
-      { q: "Innate vs adaptive key differences?", a: "Innate: nonspecific, immediate. Adaptive: antigen‑specific, systemic, memory (B & T cells).", topic: "Immune", ch: 17 },
-      { q: "Active vs passive immunity examples?", a: "Active: infection or vaccination. Passive: maternal antibodies or donated antibodies (short‑lived).", topic: "Immune", ch: 17 },
+      { q: "Innate vs adaptive key differences?", a: "Innate: nonspecific, immediate. Adaptive: antigen-specific, systemic, memory (B & T cells).", topic: "Immune", ch: 17 },
+      { q: "Active vs passive immunity examples?", a: "Active: infection or vaccination. Passive: maternal antibodies or donated antibodies (short-lived).", topic: "Immune", ch: 17 },
       { q: "Virus vs bacteria in one line", a: "Viruses are acellular particles that replicate only inside living cells; bacteria are unicellular organisms (some pathogenic, many beneficial).", topic: "Immune", ch: 17 },
 
       // Chapter 18 — Reproduction & Development
@@ -76,111 +87,7 @@
       { q: "Zygote vs embryo vs fetus timing?", a: "Zygote (first cell), embryo (fertilization to week 8), fetus (week 9 to birth).", topic: "Repro", ch: 18 },
     ];
 
-    // ---- Data: Tricky Multiple-Choice Questions ----
-    const MCQ = [
-      { ch:16, topic:"Cardio", q:"Approximately what fraction of whole blood volume is made up of erythrocytes (hematocrit) in a typical adult?",
-        options:[
-          { t:"~45%", ok:true, why:"Hematocrit is ~45% in an average adult, with plasma ~55%." },
-          { t:"~55%", ok:false, why:"~55% is typically plasma, not RBCs." },
-          { t:"~10%", ok:false, why:"Too low for normal hematocrit values." },
-          { t:"~90%", ok:false, why:"Way too high; plasma is the majority by volume." },
-        ] },
-      { ch:16, topic:"Respiratory", q:"During quiet inspiration, which sequence is correct?",
-        options:[
-          { t:"Muscles contract → Lung volume ↑ → Pressure ↓ → Air in", ok:true, why:"Boyle’s law: volume and pressure inversely related." },
-          { t:"Muscles relax → Volume ↑ → Pressure ↓ → Air in", ok:false, why:"Relaxation decreases volume; inspiration requires contraction." },
-          { t:"Muscles contract → Volume ↓ → Pressure ↑ → Air in", ok:false, why:"Contraction increases volume, not decreases." },
-          { t:"Muscles relax → Volume ↑ → Pressure ↑ → Air in", ok:false, why:"Mismatch of pressure gradient direction." },
-        ] },
-      { ch:16, topic:"Digestive", q:"Which correctly pairs organ and primary digestive function?",
-        options:[
-          { t:"Liver — produces bile to emulsify fats", ok:true, why:"Bile increases surface area for lipase action." },
-          { t:"Pancreas — stores bile until needed", ok:false, why:"Gallbladder stores bile; pancreas makes enzymes." },
-          { t:"Duodenum — major site of water absorption", ok:false, why:"Water absorption is largely in large intestine; duodenum is for breakdown." },
-          { t:"Salivary glands — mechanical digestion via mastication", ok:false, why:"Teeth perform mechanical digestion; saliva provides enzymes/antibacterial factors." },
-        ] },
-      { ch:16, topic:"Skeletal", q:"Which set of rib counts is accurate?",
-        options:[
-          { t:"True 7 pairs; False 5 pairs; Floating 2 pairs", ok:true, why:"Matches standard adult anatomy." },
-          { t:"True 12 pairs; False 2 pairs; Floating 1 pair", ok:false, why:"Humans have 12 pairs total ribs, not 12 true pairs." },
-          { t:"True 5 pairs; False 7 pairs; Floating 4 pairs", ok:false, why:"Swapped counts and inflates floating." },
-          { t:"True 6 pairs; False 6 pairs; Floating 0 pairs", ok:false, why:"Floating ribs exist (2 pairs)." },
-        ] },
-      { ch:16, topic:"Muscular", q:"Pick the fully correct muscle-type statement:",
-        options:[
-          { t:"Skeletal: striated & voluntary; Cardiac: striated & involuntary; Smooth: unstriated & involuntary", ok:true, why:"All properties align with definitions." },
-          { t:"Skeletal: involuntary; Cardiac: voluntary; Smooth: striated", ok:false, why:"All three properties are mismatched." },
-          { t:"Skeletal and smooth are both voluntary", ok:false, why:"Only skeletal is voluntary." },
-          { t:"Cardiac is non‑striated", ok:false, why:"Cardiac is striated." },
-        ] },
-      { ch:16, topic:"Endocrine", q:"Which hormone pairing with its primary effect is correct?",
-        options:[
-          { t:"Aldosterone — promotes Na⁺ retention (kidneys)", ok:true, why:"It’s a mineralocorticoid regulating electrolytes/volume." },
-          { t:"Calcitonin — raises blood Ca²⁺", ok:false, why:"Calcitonin lowers blood Ca²⁺; PTH raises it." },
-          { t:"Insulin — increases blood glucose", ok:false, why:"Insulin decreases blood glucose; glucagon increases." },
-          { t:"Epinephrine — decreases heart rate and bronchoconstricts", ok:false, why:"SNS effect is ↑HR and bronchodilation." },
-        ] },
-      { ch:16, topic:"Nervous", q:"Afferent vs efferent pathways transmit impulses…",
-        options:[
-          { t:"Afferent to CNS; Efferent to effectors", ok:true, why:"Sensory in; motor out." },
-          { t:"Afferent to muscles; Efferent to brain", ok:false, why:"Reversed." },
-          { t:"Both to CNS only", ok:false, why:"Efferent leaves CNS to body." },
-          { t:"Both to effectors only", ok:false, why:"Afferent goes to CNS." },
-        ] },
-      // Chapter 17
-      { ch:17, topic:"Immune", q:"Which lists only secondary lymphoid tissues?",
-        options:[
-          { t:"Spleen, tonsils, Peyer’s patches, appendix", ok:true, why:"All are secondary (MALT + spleen)." },
-          { t:"Thymus and bone marrow", ok:false, why:"Those are primary lymphoid tissues." },
-          { t:"Heart and lungs", ok:false, why:"Not lymphoid tissues." },
-          { t:"Kidneys and liver", ok:false, why:"Not lymphoid tissues." },
-        ] },
-      { ch:17, topic:"Immune", q:"Which statement about immunity is most accurate?",
-        options:[
-          { t:"Active immunity generates memory; passive immunity is short‑lived and borrowed", ok:true, why:"Only active exposure creates memory cells." },
-          { t:"Passive immunity outlasts active immunity", ok:false, why:"It’s short‑lived (weeks)." },
-          { t:"Innate immunity is antigen‑specific", ok:false, why:"Innate is nonspecific." },
-          { t:"B cells mediate cell‑mediated immunity", ok:false, why:"T cells mediate cell‑mediated immunity; B cells are humoral." },
-        ] },
-      { ch:17, topic:"Immune", q:"Match tissue with best description:",
-        options:[
-          { t:"Bone marrow — production of protective cells", ok:true, why:"Primary lymphoid tissue function." },
-          { t:"Thymus — filters blood for old RBCs", ok:false, why:"That’s spleen; thymus matures T cells." },
-          { t:"Spleen — matures T cells", ok:false, why:"T cells mature in thymus." },
-          { t:"Tonsils — absorb fats", ok:false, why:"Tonsils trap pathogens entering pharynx." },
-        ] },
-      // Chapter 18
-      { ch:18, topic:"Repro", q:"Which pairing is fully correct?",
-        options:[
-          { t:"Seminal vesicles: ~60% of semen volume; prostate: ~33%", ok:true, why:"Matches the relative contributions listed." },
-          { t:"Bulbourethral glands: primary sperm producers", ok:false, why:"They secrete mucus that neutralizes urethral acidity; testes make sperm." },
-          { t:"Epididymis: produces testosterone", ok:false, why:"Leydig cells in testes produce testosterone." },
-          { t:"Vas deferens: site of fertilization", ok:false, why:"Fertilization is usually in the uterine tube." },
-        ] },
-      { ch:18, topic:"Repro", q:"Select the most accurate menstrual timeline:",
-        options:[
-          { t:"Days 1–5 menstrual; 6–14 proliferative; ~14 ovulation; 15–28 secretory", ok:true, why:"Standard textbook pattern." },
-          { t:"Days 1–5 secretory; 6–14 menstrual; 14–28 ovulatory", ok:false, why:"Order is scrambled." },
-          { t:"Ovulation occurs during days 1–5", ok:false, why:"Ovulation is around day 14." },
-          { t:"Proliferative phase follows secretory phase", ok:false, why:"Proliferative precedes ovulation and secretory." },
-        ] },
-      { ch:18, topic:"Repro", q:"Which statement about gamete viability is best?",
-        options:[
-          { t:"Oocyte ~12–24 h post‑ovulation; sperm ~24–72 h post‑ejaculation", ok:true, why:"Matches common physiology ranges." },
-          { t:"Oocyte ~72 h; sperm ~12 h", ok:false, why:"Reversed durations." },
-          { t:"Both last ~7 days", ok:false, why:"Much shorter under typical conditions." },
-          { t:"Neither survives beyond 6 h", ok:false, why:"Both can survive longer than 6 h." },
-        ] },
-      { ch:18, topic:"Repro", q:"Correctly ordered developmental terms:",
-        options:[
-          { t:"Zygote → Embryo → Fetus", ok:true, why:"Chronological progression." },
-          { t:"Embryo → Zygote → Fetus", ok:false, why:"Zygote is first cell." },
-          { t:"Fetus → Embryo → Zygote", ok:false, why:"Reverse order." },
-          { t:"Zygote → Fetus → Embryo", ok:false, why:"Embryo precedes fetus." },
-        ] },
-    ];
-
-    // Utility
+    // ---- Utility
     function getQuery(){ try { return new URLSearchParams(window.location.search);} catch { return new URLSearchParams(); } }
     function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
 
@@ -199,25 +106,29 @@
     );
 
     function useLocalStorage(key, initial){
-      const [value, setValue] = useState(()=>{ try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : initial; } catch { return initial; }});
-      useEffect(()=>{ try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }, [key, value]);
+      const [value, setValue] = React.useState(()=>{ try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : initial; } catch { return initial; }});
+      React.useEffect(()=>{ try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }, [key, value]);
       return [value, setValue];
     }
 
+    // ----------------------
     // Flashcards
+    // ----------------------
     function Flashcards({ allCards }){
       const [chapter, setChapter] = useLocalStorage("bio_chapter", "All");
       const [topic, setTopic] = useLocalStorage("bio_topic", "All");
       const [order, setOrder] = useLocalStorage("bio_order", "Shuffled");
       const [index, setIndex] = useLocalStorage("bio_idx", 0);
-      const [showBack, setShowBack] = useState(false);
-      const topics = useMemo(()=>{ const s = new Set(allCards.map(c=>c.topic)); return ["All", ...Array.from(s).sort()]; }, [allCards]);
-      const filtered = useMemo(()=>{ let deck=allCards; if(chapter!=="All") deck=deck.filter(c=>c.ch===Number(chapter)); if(topic!=="All") deck=deck.filter(c=>c.topic===topic); if(order==="Shuffled") deck=shuffle(deck); if(order==="A→Z (Q)") deck=deck.slice().sort((a,b)=>a.q.localeCompare(b.q)); return deck; }, [allCards,chapter,topic,order]);
-      useEffect(()=>{ if(index>=filtered.length) setIndex(0); }, [filtered.length, index, setIndex]);
+      const [showBack, setShowBack] = React.useState(false);
+
+      const topics = React.useMemo(()=>{ const s = new Set(allCards.map(c=>c.topic)); return ["All", ...Array.from(s).sort()]; }, [allCards]);
+      const filtered = React.useMemo(()=>{ let deck=allCards; if(chapter!=="All") deck=deck.filter(c=>c.ch===Number(chapter)); if(topic!=="All") deck=deck.filter(c=>c.topic===topic); if(order==="Shuffled") deck=shuffle(deck); if(order==="A→Z (Q)") deck=deck.slice().sort((a,b)=>a.q.localeCompare(b.q)); return deck; }, [allCards,chapter,topic,order]);
+      React.useEffect(()=>{ if(index>=filtered.length) setIndex(0); }, [filtered.length, index, setIndex]);
       const card = filtered[index];
       const progress = filtered.length ? Math.round(((index+1)/filtered.length)*100) : 0;
       const next = ()=>{ setShowBack(false); setIndex(i=> (i+1) % Math.max(filtered.length,1)); };
       const prev = ()=>{ setShowBack(false); setIndex(i=> (i-1+filtered.length) % Math.max(filtered.length,1)); };
+
       return (
         <div>
           <div className="grid md:grid-cols-4 gap-3 mb-3">
@@ -236,7 +147,7 @@
           {card ? (
             <div className="grid md:grid-cols-[1fr,260px] gap-4">
               <button onClick={()=>setShowBack(!showBack)} className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-6 text-left shadow-sm hover:scale-[1.01] transition">
-                <div className="text-xs uppercase tracking-wide mb-2 opacity-70">{showBack?"Answer":"Question"}</div>
+                <div className="text-xs uppercase tracking-wide mb-2 opacity-70">{showBack? "Answer":"Question"}</div>
                 <div className="text-2xl leading-snug">{showBack ? card.a : card.q}</div>
                 <div className="mt-4 flex items-center gap-2 opacity-70 text-sm"><Tag>Ch {card.ch}</Tag><Tag>{card.topic}</Tag><Tag>{index+1}/{filtered.length}</Tag></div>
               </button>
@@ -246,102 +157,137 @@
                 <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={next}>Next</button>
               </div>
             </div>
-          ): (<div className="p-6 text-center opacity-80">No cards match your filter.</div>)}
+          ) : (<div className="p-6 text-center opacity-80">No cards match your filter.</div>)}
         </div>
       );
     }
 
+    // ----------------------
     // Quiz
+    // ----------------------
     function Quiz({ bank }){
       const [chapter, setChapter] = useLocalStorage("quiz_ch", "All");
-      const [count, setCount] = useLocalStorage("quiz_n", 10);
-      const [started, setStarted] = useState(false);
-      const [qset, setQset] = useState([]);
-      const [idx, setIdx] = useState(0);
-      const [answers, setAnswers] = useState([]);
-      const [showWhy, setShowWhy] = useState(false);
-      const filtered = useMemo(()=> (chapter==="All"? bank: bank.filter(q=>q.ch===Number(chapter))), [bank, chapter]);
-      const start = ()=>{ const size=Math.max(1, Math.min(filtered.length, Number(count))); const qs=shuffle(filtered).slice(0,size).map(q=>({...q, options: shuffle(q.options)})); setQset(qs); setIdx(0); setAnswers(Array(size).fill(null)); setShowWhy(false); setStarted(true); };
-      const select = (i)=>{ if(!started) return; const next = answers.slice(); next[idx] = i; setAnswers(next); setShowWhy(true); };
-      const next = ()=>{ setShowWhy(false); setIdx(i=> Math.min(i+1, qset.length)); };
-      const prev = ()=>{ setShowWhy(false); setIdx(i=> Math.max(i-1, 0)); };
+      const [count, setCount] = useLocalStorage("quiz_n", 40); // default 40 per your request
+      const [started, setStarted] = React.useState(false);
+      const [qset, setQset] = React.useState([]);
+      const [idx, setIdx] = React.useState(0);
+      const [answers, setAnswers] = React.useState([]);
+      const [showWhy, setShowWhy] = React.useState(false);
+
+      const filtered = React.useMemo(()=> (chapter==="All" ? bank : bank.filter(q=>q.ch===Number(chapter))), [bank, chapter]);
+
+      const start = ()=> {
+        const size = Math.max(1, Math.min(filtered.length, Number(count)));
+        const qs = shuffle(filtered).slice(0, size).map(q=> ({...q, options: shuffle(q.options)}));
+        setQset(qs);
+        setIdx(0);
+        setAnswers(Array(size).fill(null));
+        setShowWhy(false);
+        setStarted(true);
+      };
+
+      const select = (i)=>{ if(!started) return; const next = answers.slice(); next[idx]=i; setAnswers(next); setShowWhy(true); };
+      const nextQ = ()=>{ setShowWhy(false); setIdx(i=> Math.min(i+1, qset.length)); };
+      const prevQ = ()=>{ setShowWhy(false); setIdx(i=> Math.max(i-1, 0)); };
+
       const finished = started && idx >= qset.length;
       const score = React.useMemo(()=>{ if(!finished) return 0; let s=0; qset.forEach((q,i)=>{ const ai=answers[i]; if(ai!=null && q.options[ai]?.ok) s++;}); return s; }, [finished, qset, answers]);
-      const Review = ()=> (
+
+      const Review = ()=>(
         <div className="space-y-3">
-          {qset.map((q,i)=>{ const ai=answers[i]; const correctIdx = q.options.findIndex(o=>o.ok); const correct= ai===correctIdx; return (
-            <div key={i} className={`p-4 rounded-xl border ${correct?"border-green-500/40 bg-green-500/10":"border-red-500/40 bg-red-500/10"}`}>
-              <div className="text-sm opacity-80 mb-1">Q{i+1} • Ch {q.ch} • {q.topic}</div>
-              <div className="font-medium mb-2">{q.q}</div>
-              <div className="text-sm mb-1">Your answer: <span className="font-semibold">{ai!=null ? q.options[ai].t : "(none)"}</span></div>
-              <div className="text-sm">Correct answer: <span className="font-semibold">{q.options[correctIdx].t}</span></div>
-              <div className="text-sm mt-2 opacity-80">Why: {q.options[correctIdx].why}</div>
-            </div>
-          );})}
+          {qset.map((q,i)=>{ const ai=answers[i]; const ci=q.options.findIndex(o=>o.ok); const correct = ai===ci;
+            return (
+              <div key={i} className={`p-4 rounded-xl border ${correct? "border-green-500/40 bg-green-500/10" : "border-red-500/40 bg-red-500/10"}`}>
+                <div className="text-sm opacity-80 mb-1">Q{i+1} • Ch {q.ch} • {q.topic}</div>
+                <div className="font-medium mb-2">{q.q}</div>
+                <div className="text-sm mb-1">Your answer: <span className="font-semibold">{ai!=null ? q.options[ai].t : "(none)"}</span></div>
+                <div className="text-sm">Correct answer: <span className="font-semibold">{q.options[ci].t}</span></div>
+                <div className="text-sm mt-2 opacity-80">Why: {q.options[ci].why}</div>
+              </div>
+            );
+          })}
         </div>
       );
-      if(!started){ return (
-        <div>
-          <div className="grid md:grid-cols-3 gap-3 mb-4">
-            <select className="bg-black/30 border border-white/10 rounded-xl p-2" value={chapter} onChange={e=>setChapter(e.target.value)}>
-              <option>All</option><option value="16">16</option><option value="17">17</option><option value="18">18</option>
-            </select>
-            <input className="bg-black/30 border border-white/10 rounded-xl p-2" type="number" min={1} max={filtered.length||1} value={count} onChange={e=>setCount(e.target.value)} />
-            <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={start}>Start Quiz</button>
+
+      if(!started){
+        return (
+          <div>
+            <div className="grid md:grid-cols-3 gap-3 mb-4">
+              <select className="bg-black/30 border border-white/10 rounded-xl p-2" value={chapter} onChange={e=>setChapter(e.target.value)}>
+                <option>All</option><option value="16">16</option><option value="17">17</option><option value="18">18</option>
+              </select>
+              <input className="bg-black/30 border border-white/10 rounded-xl p-2" type="number" min="1" max={filtered.length||1} value={count} onChange={e=>setCount(e.target.value)} />
+              <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={start}>Start Quiz</button>
+            </div>
+            <div className="opacity-75 text-sm">Bank size for current filter: {filtered.length} questions</div>
           </div>
-          <div className="opacity-75 text-sm">Bank size for current filter: {filtered.length} questions</div>
-        </div>
-      ); }
-      if(finished){ return (
-        <div>
-          <div className="p-4 rounded-2xl border border-white/10 bg-white/5 mb-4">
-            <div className="text-2xl font-semibold">Score: {score} / {qset.length}</div>
-            <div className="opacity-80 mt-1">{Math.round((score/qset.length)*100)}%</div>
-            <div className="mt-3 flex gap-2"><button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={()=>setStarted(false)}>New Quiz</button></div>
+        );
+      }
+
+      if(finished){
+        return (
+          <div>
+            <div className="p-4 rounded-2xl border border-white/10 bg-white/5 mb-4">
+              <div className="text-2xl font-semibold">Score: {score} / {qset.length}</div>
+              <div className="opacity-80 mt-1">{Math.round((score/qset.length)*100)}%</div>
+              <div className="mt-3 flex gap-2">
+                <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={()=>setStarted(false)}>New Quiz</button>
+              </div>
+            </div>
+            <Review />
           </div>
-          <Review />
-        </div>
-      ); }
+        );
+      }
+
       const q = qset[idx];
       const selected = answers[idx];
+
       return (
         <div>
           <div className="flex items-center justify-between mb-3">
             <div className="text-sm opacity-80">Question {idx+1} of {qset.length} • Ch {q.ch} • {q.topic}</div>
             <div className="flex gap-2">
-              <button className="px-3 py-1 rounded-lg border border-white/10 bg-white/5" onClick={prev} disabled={idx===0}>Prev</button>
-              <button className="px-3 py-1 rounded-lg border border-white/10 bg-white/5" onClick={next}>{selected==null?"Skip":"Next"}</button>
+              <button className="px-3 py-1 rounded-lg border border-white/10 bg-white/5" onClick={prevQ} disabled={idx===0}>Prev</button>
+              <button className="px-3 py-1 rounded-lg border border-white/10 bg-white/5" onClick={nextQ}>{selected==null ? "Skip" : "Next"}</button>
             </div>
           </div>
           <div className="p-4 rounded-2xl border border-white/10 bg-white/5 mb-3">
             <div className="text-lg font-medium mb-2">{q.q}</div>
             <div className="grid gap-2">
-              {q.options.map((o,i)=>{ const picked = selected===i; const correctness = picked ? (o.ok?"border-green-500/50 bg-green-500/10":"border-red-500/50 bg-red-500/10") : "border-white/10 hover:border-white/20"; return (
-                <button key={i} onClick={()=>select(i)} className={`text-left p-3 rounded-xl border ${correctness}`}>
-                  <div className="font-medium">{String.fromCharCode(65+i)}. {o.t}</div>
-                  {showWhy && picked && (<div className="text-sm mt-1 opacity-80">{o.why}</div>)}
-                </button>
-              );})}
+              {q.options.map((o,i)=> {
+                const picked = selected===i;
+                const correctness = picked ? (o.ok? "border-green-500/50 bg-green-500/10" : "border-red-500/50 bg-red-500/10") : "border-white/10 hover:border-white/20";
+                return (
+                  <button key={i} onClick={()=>select(i)} className={`text-left p-3 rounded-xl border ${correctness}`}>
+                    <div className="font-medium">{String.fromCharCode(65+i)}. {o.t}</div>
+                    {showWhy && picked && (<div className="text-sm mt-1 opacity-80">{o.why}</div>)}
+                  </button>
+                );
+              })}
             </div>
           </div>
-          <div className="text-sm opacity-75">Tip: Some distractors are *almost* right. Look for precise wording and organ roles.</div>
+          <div className="text-sm opacity-75">Tip: These are designed to trick you a bit—watch for precise wording and sequences.</div>
         </div>
       );
     }
 
-    // Learn Mode
+    // ----------------------
+    // Learn Mode (spaced-repetition-lite)
+    // ----------------------
     function Learn({ allCards }){
       const [chapter, setChapter] = useLocalStorage("learn_chapter", "All");
       const [topic, setTopic] = useLocalStorage("learn_topic", "All");
-      const [revealed, setRevealed] = useState(false);
+      const [revealed, setRevealed] = React.useState(false);
       const [minimal, setMinimal] = useLocalStorage("learn_minimal", true);
       const [srs, setSrs] = useLocalStorage("learn_srs_v1", {});
       const now = Date.now();
-      const topics = useMemo(()=>{ const s = new Set(allCards.map(c=>c.topic)); return ["All", ...Array.from(s).sort()]; }, [allCards]);
-      const filtered = useMemo(()=>{ let deck=allCards; if(chapter!=="All") deck=deck.filter(c=>c.ch===Number(chapter)); if(topic!=="All") deck=deck.filter(c=>c.topic===topic); return deck; }, [allCards,chapter,topic]);
+
+      const topics = React.useMemo(()=>{ const s = new Set(allCards.map(c=>c.topic)); return ["All", ...Array.from(s).sort()]; }, [allCards]);
+      const filtered = React.useMemo(()=>{ let deck=allCards; if(chapter!=="All") deck=deck.filter(c=>c.ch===Number(chapter)); if(topic!=="All") deck=deck.filter(c=>c.topic===topic); return deck; }, [allCards, chapter, topic]);
       const keyOf = (c)=> `${c.ch}|${c.topic}|${c.q}`;
-      const nextCard = useMemo(()=>{ if(!filtered.length) return null; const withState=filtered.map(c=>({c, st:srs[keyOf(c)]})); const dueNow=withState.filter(x=>!x.st || x.st.due<=now); if(dueNow.length) return dueNow.sort((a,b)=> (a.st?.due??0)-(b.st?.due??0))[0].c; return withState.sort((a,b)=> (a.st?.due??Infinity)-(b.st?.due??Infinity))[0]?.c || null; }, [filtered, srs, now]);
+      const nextCard = React.useMemo(()=>{ if(!filtered.length) return null; const withState=filtered.map(c=>({c, st:srs[keyOf(c)]})); const dueNow=withState.filter(x=>!x.st || x.st.due<=now); if(dueNow.length) return dueNow.sort((a,b)=> (a.st?.due??0)-(b.st?.due??0))[0].c; return withState.sort((a,b)=> (a.st?.due??Infinity)-(b.st?.due??Infinity))[0]?.c || null; }, [filtered, srs, now]);
       const schedule = (card, rating)=>{ const key=keyOf(card); const prev=srs[key]||{reps:0,due:now}; const base={again:60*1000, hard:5*60*1000, good:15*60*1000, easy:24*60*60*1000}; const delta=base[rating]||base.good; const next={reps:prev.reps+1, due: now+delta, last:rating}; setSrs({...srs, [key]: next}); setRevealed(false); };
+
       if(!nextCard) return (<div className="p-4 opacity-80">No cards match your filters yet.</div>);
       const controls = (
         <div className="flex flex-wrap gap-2">
@@ -357,15 +303,16 @@
           </label>
         </div>
       );
+
       return (
-        <div className={minimal?"":"space-y-4"}>
+        <div className={minimal? "": "space-y-4"}>
           {!minimal && <div className="mb-3">{controls}</div>}
-          <div className={`rounded-2xl border border-white/10 ${minimal?"p-4":"p-6 bg-white/5"}`}>
+          <div className={`rounded-2xl border border-white/10 ${minimal? "p-4":"p-6 bg-white/5"}`}>
             <div className="flex items-center justify-between mb-2">
               <div className="text-xs opacity-70">Ch {nextCard.ch} • {nextCard.topic}</div>
               {minimal && (<div className="text-xs opacity-60">Learn Mode</div>)}
             </div>
-            <div className={`text-${minimal?"xl":"2xl"} leading-snug`}>{revealed ? nextCard.a : nextCard.q}</div>
+            <div className={`text-${minimal? "xl":"2xl"} leading-snug`}>{revealed ? nextCard.a : nextCard.q}</div>
             <div className="mt-4 flex flex-wrap gap-2">
               {!revealed ? (
                 <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={()=>setRevealed(true)}>Reveal</button>
@@ -385,7 +332,9 @@
       );
     }
 
-    // Kahoot-style multiplayer via BroadcastChannel
+    // ----------------------
+    // Kahoot-style multiplayer via BroadcastChannel (no server)
+    // ----------------------
     const bcName = (pin)=> `bio_kahoot_${pin}`;
     const randPIN = ()=> Math.floor(100000 + Math.random()*900000).toString();
 
@@ -394,21 +343,30 @@
       const [chapter, setChapter] = useLocalStorage("kh_ch", "All");
       const [count, setCount] = useLocalStorage("kh_n", 8);
       const [timer, setTimer] = useLocalStorage("kh_t", 25);
-      const [stage, setStage] = useState("lobby");
-      const [qset, setQset] = useState([]);
-      const [qi, setQi] = useState(0);
-      const [timeLeft, setTimeLeft] = useState(timer);
-      const [players, setPlayers] = useState({});
-      const [answers, setAnswers] = useState({});
-      const chanRef = useRef(null);
-      useEffect(()=>{ const ch=new BroadcastChannel(bcName(pin)); chanRef.current=ch; ch.onmessage=(e)=>{ const {type,payload}=e.data||{}; if(type==='join'){ setPlayers(p=>({...p, [payload.id]: {name:payload.name, score:p[payload.id]?.score||0}})); } if(type==='answer'){ setAnswers(a=>{ const map={...(a[qi]||{})}; if(!(payload.id in map)) map[payload.id]=payload; return {...a, [qi]: map}; }); } }; return ()=> ch.close(); }, [pin, qi]);
-      const filtered = useMemo(()=> (chapter==='All'? bank: bank.filter(q=>q.ch===Number(chapter))), [bank, chapter]);
-      const startGame = ()=>{ const qs=shuffle(filtered).slice(0, Math.max(1, Math.min(filtered.length, Number(count)))).map(q=>({...q, options: shuffle(q.options)})); setQset(qs); setQi(0); setStage('playing'); setTimeLeft(Number(timer)); setAnswers({}); chanRef.current?.postMessage({type:'start', payload:{pin, timer:Number(timer), total: qs.length}}); chanRef.current?.postMessage({type:'question', payload:{qi:0, q:qs[0]}}); };
-      useEffect(()=>{ if(stage!=="playing") return; if(timeLeft<=0){ setStage('reveal'); return; } const id=setTimeout(()=>setTimeLeft(t=>t-1), 1000); return ()=>clearTimeout(id); }, [stage, timeLeft]);
-      useEffect(()=>{ if(stage!=="reveal") return; const q=qset[qi]; const correctIdx = q.options.findIndex(o=>o.ok); const ansMap=answers[qi]||{}; const updated={...players}; Object.entries(ansMap).forEach(([id,a])=>{ if(a.choice===correctIdx){ const add=500 + Math.max(0, timeLeft)*20; updated[id] = { ...updated[id], score:(updated[id]?.score||0)+add }; } }); setPlayers(updated); chanRef.current?.postMessage({type:'reveal', payload:{qi, correctIdx}}); const to=setTimeout(()=> setStage('leaderboard'), 2000); return ()=>clearTimeout(to); }, [stage]);
-      useEffect(()=>{ if(stage!=="leaderboard") return; chanRef.current?.postMessage({type:'leaderboard', payload:{players}}); }, [stage, players]);
+      const [stage, setStage] = React.useState("lobby");
+      const [qset, setQset] = React.useState([]);
+      const [qi, setQi] = React.useState(0);
+      const [timeLeft, setTimeLeft] = React.useState(timer);
+      const [players, setPlayers] = React.useState({});
+      const [answers, setAnswers] = React.useState({});
+      const chanRef = React.useRef(null);
+
+      React.useEffect(()=>{ const ch=new BroadcastChannel(bcName(pin)); chanRef.current=ch; ch.onmessage=(e)=>{ const {type,payload}=e.data||{}; if(type==='join'){ setPlayers(p=>({...p,[payload.id]:{name:payload.name,score:p[payload.id]?.score||0}})); } if(type==='answer'){ setAnswers(a=>{ const map={...(a[qi]||{})}; if(!(payload.id in map)) map[payload.id]=payload; return {...a,[qi]:map}; }); } }; return ()=> ch.close(); }, [pin, qi]);
+
+      const filtered = React.useMemo(()=> (chapter==='All'? bank: bank.filter(q=>q.ch===Number(chapter))), [bank, chapter]);
+
+      const startGame = ()=>{ const qs=shuffle(filtered).slice(0, Math.max(1, Math.min(filtered.length, Number(count)))).map(q=>({...q, options: shuffle(q.options)})); setQset(qs); setQi(0); setStage('playing'); setTimeLeft(Number(timer)); setAnswers({}); chanRef.current?.postMessage({type:'start', payload:{pin, timer:Number(timer), total: qs.length}}); chanRef.current?.postMessage({type:'question', payload:{qi:0, q: qs[0]}}); };
+
+      React.useEffect(()=>{ if(stage!=='playing') return; if(timeLeft<=0){ setStage('reveal'); return;} const id=setTimeout(()=>setTimeLeft(t=>t-1),1000); return ()=>clearTimeout(id); }, [stage, timeLeft]);
+
+      React.useEffect(()=>{ if(stage!=='reveal') return; const q=qset[qi]; const correctIdx = q.options.findIndex(o=>o.ok); const ansMap=answers[qi]||{}; const updated={...players}; Object.entries(ansMap).forEach(([id,a])=>{ if(a.choice===correctIdx){ const add=500+Math.max(0,timeLeft)*20; updated[id]={...updated[id], score:(updated[id]?.score||0)+add}; } }); setPlayers(updated); chanRef.current?.postMessage({type:'reveal', payload:{qi, correctIdx}}); const to=setTimeout(()=>setStage('leaderboard'), 2000); return ()=>clearTimeout(to); }, [stage]);
+
+      React.useEffect(()=>{ if(stage!=='leaderboard') return; chanRef.current?.postMessage({type:'leaderboard', payload:{players}}); }, [stage, players]);
+
       const nextQ = ()=>{ if(qi+1>=qset.length){ setStage('finished'); chanRef.current?.postMessage({type:'end'}); return;} const n=qi+1; setQi(n); setTimeLeft(Number(timer)); setStage('playing'); chanRef.current?.postMessage({type:'question', payload:{qi:n, q:qset[n]}}); };
+
       const sorted = Object.entries(players).sort((a,b)=> (b[1].score||0)-(a[1].score||0));
+
       return (
         <div className="space-y-4">
           {stage==='lobby' && (
@@ -421,8 +379,8 @@
                 <select className="bg-black/30 border border-white/10 rounded-xl p-2" value={chapter} onChange={e=>setChapter(e.target.value)}>
                   <option>All</option><option value="16">16</option><option value="17">17</option><option value="18">18</option>
                 </select>
-                <input className="bg-black/30 border border-white/10 rounded-xl p-2" type="number" min={1} max={filtered.length||1} value={count} onChange={e=>setCount(e.target.value)} />
-                <input className="bg-black/30 border border-white/10 rounded-xl p-2" type="number" min={5} max={90} value={timer} onChange={e=>setTimer(e.target.value)} />
+                <input className="bg-black/30 border border-white/10 rounded-xl p-2" type="number" min="1" max={filtered.length||1} value={count} onChange={e=>setCount(e.target.value)} />
+                <input className="bg-black/30 border border-white/10 rounded-xl p-2" type="number" min="5" max="90" value={timer} onChange={e=>setTimer(e.target.value)} />
                 <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={startGame}>Start</button>
               </div>
               <div className="p-4 rounded-2xl border border-white/10">
@@ -431,6 +389,7 @@
               </div>
             </div>
           )}
+
           {stage==='playing' && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -449,7 +408,9 @@
               </div>
             </div>
           )}
+
           {stage==='reveal' && (<div className="p-4 rounded-2xl border border-green-500/40 bg-green-500/10"><div className="text-lg font-semibold">Time! Scoring answers…</div></div>)}
+
           {stage==='leaderboard' && (
             <div className="space-y-3">
               <div className="p-4 rounded-2xl border border-white/10 bg-white/5">
@@ -466,6 +427,7 @@
               <div className="flex gap-2"><button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={nextQ}>Next Question</button></div>
             </div>
           )}
+
           {stage==='finished' && (
             <div className="p-4 rounded-2xl border border-white/10 bg-white/5">
               <div className="text-2xl font-semibold mb-2">Game Over</div>
@@ -485,17 +447,17 @@
     }
 
     function RealKahootJoin(){
-      const [pin, setPin] = useState(getQuery().get('pin')||'');
+      const [pin, setPin] = useLocalStorage('join_pin', getQuery().get('pin')||'');
       const [name, setName] = useLocalStorage('player_name','');
-      const [joined, setJoined] = useState(false);
-      const [stage, setStage] = useState('lobby');
-      const [question, setQuestion] = useState(null);
-      const [choice, setChoice] = useState(null);
-      const [chan, setChan] = useState(null);
-      const [message, setMessage] = useState('');
-      const idRef = useRef(()=> Math.random().toString(36).slice(2));
-      const id = useMemo(()=> idRef.current(), []);
-      useEffect(()=>{ if(!pin) return; const ch=new BroadcastChannel(bcName(pin)); setChan(ch); ch.onmessage=(e)=>{ const {type,payload}=e.data||{}; if(type==='start'){ setStage('waiting'); setMessage('Game starting…'); } if(type==='question'){ setStage('question'); setQuestion(payload.q); setChoice(null); setMessage(''); } if(type==='reveal'){ setStage('reveal'); setMessage(`Correct answer: ${String.fromCharCode(65+payload.correctIdx)}`); } if(type==='leaderboard'){ setStage('leaderboard'); setMessage('Leaderboard updated'); } if(type==='end'){ setStage('end'); setMessage('Game over!'); } }; return ()=> ch.close(); }, [pin]);
+      const [joined, setJoined] = React.useState(false);
+      const [stage, setStage] = React.useState('lobby');
+      const [question, setQuestion] = React.useState(null);
+      const [choice, setChoice] = React.useState(null);
+      const [chan, setChan] = React.useState(null);
+      const [message, setMessage] = React.useState('');
+      const idRef = React.useRef(()=> Math.random().toString(36).slice(2));
+      const id = React.useMemo(()=> idRef.current(), []);
+      React.useEffect(()=>{ if(!pin) return; const ch=new BroadcastChannel(bcName(pin)); setChan(ch); ch.onmessage=(e)=>{ const {type,payload}=e.data||{}; if(type==='start'){ setStage('waiting'); setMessage('Game starting…'); } if(type==='question'){ setStage('question'); setQuestion(payload.q); setChoice(null); setMessage(''); } if(type==='reveal'){ setStage('reveal'); setMessage(\`Correct answer: \${String.fromCharCode(65+payload.correctIdx)}\`); } if(type==='leaderboard'){ setStage('leaderboard'); setMessage('Leaderboard updated'); } if(type==='end'){ setStage('end'); setMessage('Game over!'); } }; return ()=> ch.close(); }, [pin]);
       const join = ()=>{ if(!pin||!name) return; const ch=new BroadcastChannel(bcName(pin)); setChan(ch); ch.postMessage({type:'join', payload:{id, name}}); setJoined(true); setStage('waiting'); };
       const sendAnswer = (i)=>{ setChoice(i); chan?.postMessage({type:'answer', payload:{id, choice:i, t: Date.now()}}); };
       if(!joined){ return (
@@ -505,9 +467,9 @@
             <input className="bg-black/30 border border-white/10 rounded-xl p-2" placeholder="Nickname" value={name} onChange={e=>setName(e.target.value)} />
             <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={join}>Join</button>
           </div>
-          <div className="text-sm opacity-70">Ask the host for the 6‑digit code.</div>
+          <div className="text-sm opacity-70">Ask the host for the 6-digit code.</div>
         </div>
-      ); }
+      );}
       return (
         <div className="space-y-3">
           <div className="flex items-center justify-between"><div className="text-sm opacity-80">You are <b>{name}</b> • PIN {pin}</div><Tag>{stage}</Tag></div>
@@ -531,63 +493,77 @@
       );
     }
 
+    // ----------------------
     // Root App
+    // ----------------------
     function App(){
       const [tab, setTab] = useLocalStorage("bio_tab", "Flashcards");
+      // NOTE: MCQ comes from questions.js via window.MCQ
+      const MCQ = window.MCQ || [];
       return (
         <div className="min-h-screen text-slate-100">
           <header className="max-w-5xl mx-auto px-4 pt-8 pb-4">
-            <h1 className="text-3xl font-bold tracking-tight">BIO100 Flashcards + Tricky Quiz</h1>
+            <h1 className="text-3xl font-bold tracking-tight">BIO100 — Flashcards • Learn • Quiz • Kahoot</h1>
             <p className="opacity-80 mt-1">Chapters 16–18 — Body Systems, Immunity, and Reproduction</p>
           </header>
           <main className="max-w-5xl mx-auto px-4 pb-16">
             <nav className="flex gap-2 mb-6">
               {["Flashcards","Learn","Quiz","Kahoot","Join","About"].map(name => (
-                <button key={name} onClick={()=>setTab(name)} className={`px-4 py-2 rounded-xl border ${tab===name?"bg-white/10 border-white/20":"bg-white/5 border-white/10 hover:border-white/20"}`}>{name}</button>
+                <button key={name} onClick={()=>setTab(name)} className={`px-4 py-2 rounded-xl border ${tab===name? "bg-white/10 border-white/20":"bg-white/5 border-white/10 hover:border-white/20"}`}>{name}</button>
               ))}
             </nav>
+
             {tab==="Flashcards" && (
               <Section title="Flashcards" right={<div className="hidden md:block text-sm opacity-80">Tap card to flip • Use Next/Previous</div>}>
                 <Flashcards allCards={FLASHCARDS} />
               </Section>
             )}
+
             {tab==="Learn" && (
-              <Section title="Learn (Lean Mode)" right={<Tag>Spaced repetition‑lite</Tag>}>
+              <Section title="Learn (Lean Mode)" right={<Tag>Spaced repetition-lite</Tag>}>
                 <Learn allCards={FLASHCARDS} />
               </Section>
             )}
+
             {tab==="Quiz" && (
-              <Section title="Tricky Multiple‑Choice Quiz" right={<Tag>Designed to make you think</Tag>}>
+              <Section title="Tricky Multiple-Choice Quiz" right={<Tag>40 questions by default</Tag>}>
                 <Quiz bank={MCQ} />
               </Section>
             )}
+
             {tab==="Kahoot" && (
               <Section title="Kahoot (Host)" right={<Tag>No server needed</Tag>}>
                 <RealKahootHost bank={MCQ} />
               </Section>
             )}
+
             {tab==="Join" && (
               <Section title="Join a Game" right={<Tag>Enter code from host</Tag>}>
                 <RealKahootJoin />
               </Section>
             )}
+
             {tab==="About" && (
               <Section title="About this site">
                 <div className="space-y-3 text-sm leading-relaxed opacity-90">
-                  <p>These flashcards and questions cover BIO100 Chapters 16–18: Urinary, Digestive, Cardiovascular, Respiratory, Skeletal, Muscular, Nervous, Endocrine systems; Immunity; and Reproduction & Development.</p>
-                  <p>The quiz options include carefully written distractors that are nearly correct. Read closely for exact organ functions, hormone effects, and sequence order.</p>
-                  <p className="opacity-70">Now with <b>Learn</b> mode and a lightweight <b>Kahoot-style</b> multiplayer without a server.</p>
+                  <p>Covers BIO100 Chapters 16–18: Urinary, Digestive, Cardiovascular, Respiratory, Skeletal, Muscular, Nervous, Endocrine; Immunity; and Reproduction & Development.</p>
+                  <p>Quiz answers include close-but-wrong distractors. Read carefully for precise organ roles, hormones, and sequences.</p>
+                  <p className="opacity-70">Includes Learn mode and a lightweight Kahoot-style multiplayer using the BroadcastChannel API.</p>
                 </div>
               </Section>
             )}
           </main>
-          <footer className="max-w-5xl mx-auto px-4 pb-8 text-xs opacity-60">© {new Date().getFullYear()} BIO100 Study Helper</footer>
+          <footer className="max-w-5xl mx-auto px-4 pb-8 text-xs opacity-60">© <span id="yr"></span> BIO100 Study Helper</footer>
         </div>
       );
     }
 
+    // Mount
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
+
+    // Footer year
+    document.getElementById('yr').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
