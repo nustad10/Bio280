@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BIO100 Study Helper</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen text-slate-100 bg-[#0d1117]">
+  <div id="root" class="max-w-5xl mx-auto px-4 py-8"></div>
+
+  <!-- React + Babel -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Data (global) -->
+  <script src="./flashcards.js"></script>
+  <script src="./questions.js"></script>
+  <script src="./underlined.js"></script>
+
+  <script type="text/babel">
+    const { useMemo, useState, useEffect, useRef } = React;
+
+    // Helpers
+    const shuffle = (arr) => {
+      const a = [...arr];
+      for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+      return a;
+    };
+    const getQuery = () => { try{ return new URLSearchParams(window.location.search);}catch{return new URLSearchParams();} };
+    const bcName = (pin) => "bio_kahoot_"+pin;
+    const randPIN = () => String(Math.floor(100000 + Math.random()*900000));
+
+    const Tag = ({ children }) => (<span className="text-xs px-2 py-1 rounded-full bg-white/10 border border-white/10">{children}</span>);
+    const Section = ({ title, right, children }) => (
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+          <div>{right}</div>
+        </div>
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 shadow-sm">{children}</div>
+      </div>
+    );
+
+    // Local storage helper
+    function useLocalStorage(key, initial){
+      const [value, setValue] = React.useState(() => {
+        try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : initial; } catch { return initial; }
+      });
+      React.useEffect(() => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }, [key, value]);
+      return [value, setValue];
+    }
+
+    // Flashcards
+    function Flashcards({ allCards }){
+      const [chapter, setChapter] = useLocalStorage("bio_chapter", "All");
+      const [topic, setTopic] = useLocalStorage("bio_topic", "All");
+      const [order, setOrder] = useLocalStorage("bio_order", "Shuffled");
+      const [index, setIndex] = useLocalStorage("bio_idx", 0);
+      const [showBack, setShowBack] = useState(false);
+
+      const topics = useMemo(() => {
+        const set = new Set(allCards.map(c => c.topic));
+        return ["All", ...Array.from(set).sort()];
+      }, [allCards]);
+
+      const filtered = useMemo(() => {
+        let deck = allCards;
+        if (chapter !== "All") deck = deck.filter(c => c.ch === Number(chapter));
+        if (topic !== "All") deck = deck.filter(c => c.topic === topic);
+        if (order === "Shuffled") deck = shuffle(deck);
+        if (order === "A-Z (Q)") deck = deck.slice().sort((a,b)=> a.q.localeCompare(b.q));
+        return deck;
+      }, [allCards, chapter, topic, order]);
+
+      useEffect(() => { if (index >= filtered.length) setIndex(0); }, [filtered.length, index, setIndex]);
+
+      const card = filtered[index];
+      const progress = filtered.length ? Math.round(((index+1)/filtered.length)*100) : 0;
+      const next = () => { setShowBack(false); setIndex(i => (i+1) % Math.max(filtered.length, 1)); };
+      const prev = () => { setShowBack(false); setIndex(i => (i-1+filtered.length) % Math.max(filtered.length, 1)); };
+
+      return (
+        <div>
+          <div className="grid md:grid-cols-4 gap-3 mb-3">
+            <select className="bg-black/30 border border-white/10 rounded-xl p-2" value={chapter} onChange={e=>setChapter(e.target.value)}>
+              <option>All</option><option value="16">16</option><option value="17">17</option><option value="18">18</option>
+            </select>
+            <select className="bg-black/30 border border-white/10 rounded-xl p-2" value={topic} onChange={e=>setTopic(e.target.value)}>
+              {topics.map(t=> <option key={t}>{t}</option>)}
+            </select>
+            <select className="bg-black/30 border border-white/10 rounded-xl p-2" value={order} onChange={e=>setOrder(e.target.value)}>
+              <option>Shuffled</option><option>A-Z (Q)</option>
+            </select>
+            <div className="flex items-center gap-2 text-sm opacity-80"><Tag>{filtered.length} cards</Tag><Tag>Ch {chapter}</Tag><Tag>{topic}</Tag></div>
+          </div>
+
+          <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden mb-4">
+            <div className="h-full bg-white/60" style={{width: progress + "%"}}></div>
+          </div>
+
+          {card ? (
+            <div className="grid md:grid-cols-[1fr,260px] gap-4">
+              <button onClick={()=>setShowBack(!showBack)} className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-6 text-left shadow-sm hover:scale-[1.01] transition">
+                <div className="text-xs uppercase tracking-wide mb-2 opacity-70">{showBack ? "Answer" : "Question"}</div>
+                <div className="text-2xl leading-snug">{showBack ? card.a : card.q}</div>
+                <div className="mt-4 flex items-center gap-2 opacity-70 text-sm">
+                  <Tag>Ch {card.ch}</Tag><Tag>{card.topic}</Tag><Tag>{(index+1) + "/" + filtered.length}</Tag>
+                </div>
+              </button>
+              <div className="flex md:flex-col gap-3">
+                <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={()=>setShowBack(!showBack)}>Flip</button>
+                <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={prev}>Previous</button>
+                <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={next}>Next</button>
+              </div>
+            </div>
+          ) : (<div className="p-6 text-center opacity-80">No cards match your filter.</div>)}
+        </div>
+      );
+    }
+
+    // Learn (Lean Mode)
+    function Learn({ allCards }){
+      const [chapter, setChapter] = useLocalStorage("learn_chapter", "All");
+      const [topic, setTopic] = useLocalStorage("learn_topic", "All");
+      const [revealed, setRevealed] = useState(false);
+      const [minimal, setMinimal] = useLocalStorage("learn_minimal", true);
+      const [srs, setSrs] = useLocalStorage("learn_srs_v1", {});
+      const now = Date.now();
+
+      const topics = useMemo(() => {
+        const set = new Set(allCards.map(c => c.topic));
+        return ["All", ...Array.from(set).sort()];
+      }, [allCards]);
+
+      const filtered = useMemo(() => {
+        let deck = allCards;
+        if (chapter !== "All") deck = deck.filter(c => c.ch === Number(chapter));
+        if (topic !== "All") deck = deck.filter(c => c.topic === topic);
+        return deck;
+      }, [allCards, chapter, topic]);
+
+      const keyOf = (c) => c.ch + "|" + c.topic + "|" + c.q;
+      const nextCard = useMemo(() => {
+        if (!filtered.length) return null;
+        const withState = filtered.map(c => ({ c, st: srs[keyOf(c)] }));
+        const dueNow = withState.filter(x => !x.st || (x.st && x.st.due <= now));
+        if (dueNow.length) return dueNow.sort((a,b)=> (a.st ? a.st.due : 0) - (b.st ? b.st.due : 0))[0].c;
+        return withState.sort((a,b)=> (a.st ? a.st.due : Infinity) - (b.st ? b.st.due : Infinity))[0].c;
+      }, [filtered, srs, now]);
+
+      const schedule = (card, rating) => {
+        const key = keyOf(card);
+        const prev = srs[key] || { reps: 0, due: now };
+        const base = { again: 60*1000, hard: 5*60*1000, good: 15*60*1000, easy: 24*60*60*1000 };
+        const delta = base[rating] || base.good;
+        const next = { reps: prev.reps + 1, due: now + delta, last: rating };
+        setSrs({ ...srs, [key]: next });
+        setRevealed(false);
+      };
+
+      const controls = (
+        <div className="flex flex-wrap gap-2">
+          <select className="bg-black/30 border border-white/10 rounded-xl p-2" value={chapter} onChange={e=>setChapter(e.target.value)}>
+            <option>All</option><option value="16">16</option><option value="17">17</option><option value="18">18</option>
+          </select>
+          <select className="bg-black/30 border border-white/10 rounded-xl p-2" value={topic} onChange={e=>setTopic(e.target.value)}>
+            {topics.map(t=> <option key={t}>{t}</option>)}
+          </select>
+          <label className="flex items-center gap-2 text-sm opacity-90">
+            <input type="checkbox" className="accent-white" checked={minimal} onChange={e=>setMinimal(e.target.checked)} />
+            Lean layout
+          </label>
+        </div>
+      );
+
+      if (!nextCard) return (<div className="p-4 opacity-80">No cards match your filters yet.</div>);
+
+      return (
+        <div className={minimal ? "" : "space-y-4"}>
+          {!minimal && <div className="mb-3">{controls}</div>}
+          <div className={"rounded-2xl border border-white/10 " + (minimal ? "p-4" : "p-6 bg-white/5")}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs opacity-70">Ch {nextCard.ch} • {nextCard.topic}</div>
+              {minimal && (<div className="text-xs opacity-60">Learn Mode</div>)}
+            </div>
+            <div className={minimal ? "text-xl leading-snug" : "text-2xl leading-snug"}>{revealed ? nextCard.a : nextCard.q}</div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {!revealed ? (
+                <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={()=>setRevealed(true)}>Reveal</button>
+              ) : (
+                <>
+                  <button className="px-3 py-2 rounded-xl border border-white/10 bg-white/5" onClick={()=>schedule(nextCard,'again')}>Again</button>
+                  <button className="px-3 py-2 rounded-xl border border-white/10 bg-white/5" onClick={()=>schedule(nextCard,'hard')}>Hard</button>
+                  <button className="px-3 py-2 rounded-xl border border-white/10 bg-white/5" onClick={()=>schedule(nextCard,'good')}>Good</button>
+                  <button className="px-3 py-2 rounded-xl border border-white/10 bg-white/5" onClick={()=>schedule(nextCard,'easy')}>Easy</button>
+                </>
+              )}
+            </div>
+          </div>
+          {minimal && (<div className="mt-3">{controls}</div>)}
+        </div>
+      );
+    }
+
+    // Quiz
+    function Quiz({ bank }){
+      const [chapter, setChapter] = useLocalStorage("quiz_ch", "All");
+      const [count, setCount] = useLocalStorage("quiz_n", 10);
+      const [started, setStarted] = useState(false);
+      const [qset, setQset] = useState([]);
+      const [idx, setIdx] = useState(0);
+      const [answers, setAnswers] = useState([]);
+      const [showWhy, setShowWhy] = useState(false);
+
+      const filtered = useMemo(()=> (chapter==="All"? bank : bank.filter(q=> q.ch===Number(chapter))), [bank, chapter]);
+
+      const start = () => {
+        const size = Math.max(1, Math.min(filtered.length, Number(count)));
+        const qs = shuffle(filtered).slice(0, size).map(q => ({...q, options: shuffle(q.options)}));
+        setQset(qs); setIdx(0); setAnswers(Array(size).fill(null)); setShowWhy(false); setStarted(true);
+      };
+
+      const select = (optIdx) => {
+        if (!started) return;
+        const next = answers.slice();
+        next[idx] = optIdx;
+        setAnswers(next);
+        setShowWhy(true);
+      };
+
+      const nextQ = () => { setShowWhy(false); setIdx(i=> Math.min(i+1, qset.length)); };
+      const prevQ = () => { setShowWhy(false); setIdx(i=> Math.max(i-1, 0)); };
+
+      const finished = started && idx >= qset.length;
+      const score = React.useMemo(() => {
+        if (!finished) return 0;
+        let s=0; qset.forEach((q,i)=>{ const ai=answers[i]; if(ai!=null && q.options[ai] && q.options[ai].ok) s++; });
+        return s;
+      }, [finished, qset, answers]);
+
+      const Review = () => (
+        <div className="space-y-3">
+          {qset.map((q,i)=>{
+            const ai = answers[i];
+            const ci = q.options.findIndex(o=>o.ok);
+            const ok = ai === ci;
+            const cls = ok ? "p-4 rounded-xl border border-green-500/40 bg-green-500/10"
+                           : "p-4 rounded-xl border border-red-500/40 bg-red-500/10";
+            return (
+              <div key={i} className={cls}>
+                <div className="text-sm opacity-80 mb-1">Q{i+1} • Ch {q.ch} • {q.topic}</div>
+                <div className="font-medium mb-2">{q.q}</div>
+                <div className="text-sm mb-1">Your answer: <span className="font-semibold">{ai!=null ? q.options[ai].t : "(none)"}</span></div>
+                <div className="text-sm">Correct answer: <span className="font-semibold">{q.options[ci].t}</span></div>
+                <div className="text-sm mt-2 opacity-80">Why: {q.options[ci].why}</div>
+              </div>
+            );
+          })}
+        </div>
+      );
+
+      if (!started) {
+        return (
+          <div>
+            <div className="grid md:grid-cols-3 gap-3 mb-4">
+              <select className="bg-black/30 border border-white/10 rounded-xl p-2" value={chapter} onChange={e=>setChapter(e.target.value)}>
+                <option>All</option><option value="16">16</option><option value="17">17</option><option value="18">18</option>
+              </select>
+              <input className="bg-black/30 border border-white/10 rounded-xl p-2" type="number" min="1" max={filtered.length||1} value={count} onChange={e=>setCount(e.target.value)} />
+              <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={start}>Start Quiz</button>
+            </div>
+            <div className="opacity-75 text-sm">Bank size for current filter: {filtered.length} questions</div>
+          </div>
+        );
+      }
+
+      if (finished) {
+        return (
+          <div>
+            <div className="p-4 rounded-2xl border border-white/10 bg-white/5 mb-4">
+              <div className="text-2xl font-semibold">Score: {score} / {qset.length}</div>
+              <div className="opacity-80 mt-1">{Math.round((score/qset.length)*100)}%</div>
+              <div className="mt-3 flex gap-2">
+                <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={()=>setStarted(false)}>New Quiz</button>
+              </div>
+            </div>
+            <Review />
+          </div>
+        );
+      }
+
+      const q = qset[idx];
+      const selected = answers[idx];
+
+      return (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-sm opacity-80">Question {idx+1} of {qset.length} • Ch {q.ch} • {q.topic}</div>
+            <div className="flex gap-2">
+              <button className="px-3 py-1 rounded-lg border border-white/10 bg-white/5" onClick={prevQ} disabled={idx===0}>Prev</button>
+              <button className="px-3 py-1 rounded-lg border border-white/10 bg-white/5" onClick={nextQ}>{selected==null?"Skip":"Next"}</button>
+            </div>
+          </div>
+          <div className="p-4 rounded-2xl border border-white/10 bg-white/5 mb-3">
+            <div className="text-lg font-medium mb-2">{q.q}</div>
+            <div className="grid gap-2">
+              {q.options.map((o,i)=>{
+                const picked = selected === i;
+                const cls = picked ? (o.ok ? "text-left p-3 rounded-xl border border-green-500/50 bg-green-500/10" : "text-left p-3 rounded-xl border border-red-500/50 bg-red-500/10")
+                                   : "text-left p-3 rounded-xl border border-white/10 hover:border-white/20";
+                return (
+                  <button key={i} onClick={()=>select(i)} className={cls}>
+                    <div className="font-medium">{String.fromCharCode(65+i)}. {o.t}</div>
+                    {showWhy && picked && (<div className="text-sm mt-1 opacity-80">{o.why}</div>)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="text-sm opacity-75">Tip: Some distractors are almost right. Read carefully.</div>
+        </div>
+      );
+    }
+
+    // Underline Test
+    function UnderlineTest({ items }){
+      const bank = (items||[]).map((c)=> ({
+        ch: c.ch || 0, topic: c.topic || "Underlined",
+        q: c.q, options: [
+          { t: c.a, ok: true, why: "This was underlined in your notes." },
+          { t: "A closely-related but incorrect statement", ok: false, why: "This reverses or misstates a detail." },
+          { t: "Another plausible distractor", ok: false, why: "Common misconception." },
+          { t: "An answer that looks right at a glance", ok: false, why: "But mismatches the definition/scope." }
+        ]
+      }));
+      if (!bank.length) {
+        return <div className="opacity-80 text-sm">No underlined items loaded yet. Edit <code>underlined.js</code> and add entries like: {`{ q: "Calcitonin effect?", a: "Lowers blood Ca2+.", ch:16, topic:"Endocrine" }`}</div>;
+      }
+      return <Quiz bank={bank} />;
+    }
+
+    // Kahoot Host
+    function KahootHost({ bank }){
+      const [pin, setPin] = useLocalStorage("kahoot_pin", randPIN());
+      const [chapter, setChapter] = useLocalStorage("kh_ch", "All");
+      const [count, setCount] = useLocalStorage("kh_n", 8);
+      const [timer, setTimer] = useLocalStorage("kh_t", 25);
+      const [stage, setStage] = useState("lobby");
+      const [qset, setQset] = useState([]);
+      const [qi, setQi] = useState(0);
+      const [timeLeft, setTimeLeft] = useState(timer);
+      const [players, setPlayers] = useState({});
+      const [answers, setAnswers] = useState({});
+      const chanRef = useRef(null);
+
+      useEffect(()=>{
+        const ch = new BroadcastChannel(bcName(pin));
+        chanRef.current = ch;
+        ch.onmessage = (e)=>{
+          const { type, payload } = e.data || {};
+          if (type === "join"){
+            setPlayers(p=>({...p, [payload.id]: {name: payload.name, score: p[payload.id]?.score || 0}}));
+          }
+          if (type === "answer"){
+            setAnswers(a=>{
+              const map = { ...(a[qi] || {}) };
+              if (!(payload.id in map)) map[payload.id] = payload;
+              return { ...a, [qi]: map };
+            });
+          }
+        };
+        return ()=> ch.close();
+      }, [pin, qi]);
+
+      const filtered = useMemo(()=> (chapter==="All"? bank : bank.filter(q=> q.ch === Number(chapter))), [bank, chapter]);
+
+      const startGame = () => {
+        const size = Math.max(1, Math.min(filtered.length, Number(count)));
+        const qs = shuffle(filtered).slice(0, size).map(q=> ({...q, options: shuffle(q.options)}));
+        setQset(qs); setQi(0); setStage("playing"); setTimeLeft(Number(timer)); setAnswers({});
+        chanRef.current?.postMessage({type:"start", payload:{pin, timer:Number(timer), total: qs.length}});
+        chanRef.current?.postMessage({type:"question", payload:{qi:0, q:qs[0]}});
+      };
+
+      useEffect(()=>{
+        if (stage!=="playing") return;
+        if (timeLeft<=0){ setStage("reveal"); return; }
+        const id = setTimeout(()=> setTimeLeft(t=>t-1), 1000);
+        return ()=> clearTimeout(id);
+      }, [stage, timeLeft]);
+
+      useEffect(()=>{
+        if (stage!=="reveal") return;
+        const q = qset[qi];
+        const ci = q.options.findIndex(o=>o.ok);
+        const ansMap = answers[qi] || {};
+        const updated = { ...players };
+        Object.entries(ansMap).forEach(([id,a])=>{
+          if (a.choice === ci){
+            const add = 500 + Math.max(0, timeLeft)*20;
+            updated[id] = { ...updated[id], score: (updated[id]?.score||0) + add };
+          }
+        });
+        setPlayers(updated);
+        chanRef.current?.postMessage({type:"reveal", payload:{qi, correctIdx: ci}});
+        const to = setTimeout(()=> setStage("leaderboard"), 1500);
+        return ()=> clearTimeout(to);
+      }, [stage]);
+
+      useEffect(()=>{ if (stage==="leaderboard") { chanRef.current?.postMessage({type:"leaderboard", payload:{players}}); } }, [stage, players]);
+
+      const nextQ = () => {
+        if (qi+1 >= qset.length){ setStage("finished"); chanRef.current?.postMessage({type:"end"}); return; }
+        const n = qi+1;
+        setQi(n); setTimeLeft(Number(timer)); setStage("playing");
+        chanRef.current?.postMessage({type:"question", payload:{qi:n, q:qset[n]}});
+      };
+
+      const sorted = Object.entries(players).sort((a,b)=> (b[1].score||0)-(a[1].score||0));
+
+      return (
+        <div className="space-y-4">
+          {stage==="lobby" && (
+            <div className="space-y-3">
+              <div className="p-4 rounded-2xl border border-white/10 bg-white/5">
+                <div className="text-2xl font-bold">Join Code: {pin}</div>
+                <div className="text-sm opacity-80 mt-1">Players open the Join tab and enter this code.</div>
+              </div>
+              <div className="grid md:grid-cols-4 gap-3">
+                <select className="bg-black/30 border border-white/10 rounded-xl p-2" value={chapter} onChange={e=>setChapter(e.target.value)}>
+                  <option>All</option><option value="16">16</option><option value="17">17</option><option value="18">18</option>
+                </select>
+                <input className="bg-black/30 border border-white/10 rounded-xl p-2" type="number" min="1" max={filtered.length||1} value={count} onChange={e=>setCount(e.target.value)} />
+                <input className="bg-black/30 border border-white/10 rounded-xl p-2" type="number" min="5" max="90" value={timer} onChange={e=>setTimer(e.target.value)} />
+                <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={startGame}>Start</button>
+              </div>
+              <div className="p-4 rounded-2xl border border-white/10">
+                <div className="font-semibold mb-2">Lobby</div>
+                <div className="flex flex-wrap gap-2">{sorted.length? sorted.map(([id,p])=> (<Tag key={id}>{p.name}</Tag>)) : <span className="opacity-60 text-sm">Waiting for players…</span>}</div>
+              </div>
+            </div>
+          )}
+          {stage==="playing" && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="text-sm opacity-80">Q{qi+1} / {qset.length} • Time left: {timeLeft}s</div>
+                <Tag>PIN {pin}</Tag>
+              </div>
+              <div className="p-4 rounded-2xl border border-white/10 bg-white/5">
+                <div className="text-lg font-semibold mb-2">{qset[qi].q}</div>
+                <div className="grid gap-2">{qset[qi].options.map((o,i)=> (<div key={i} className="p-3 rounded-xl border border-white/10"><div className="font-medium">{String.fromCharCode(65+i)}. {o.t}</div></div>))}</div>
+              </div>
+            </div>
+          )}
+          {stage==="reveal" && (<div className="p-4 rounded-2xl border border-green-500/40 bg-green-500/10"><div className="text-lg font-semibold">Scoring answers…</div></div>)}
+          {stage==="leaderboard" && (
+            <div className="space-y-3">
+              <div className="p-4 rounded-2xl border border-white/10 bg-white/5">
+                <div className="text-lg font-semibold mb-2">Leaderboard</div>
+                <ol className="space-y-1">{sorted.map(([id,p],idx)=> (
+                  <li key={id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2"><span className="text-sm opacity-70">#{idx+1}</span><span>{p.name}</span></div>
+                    <div className="font-semibold">{p.score}</div>
+                  </li>
+                ))}</ol>
+              </div>
+              <div className="flex gap-2"><button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={nextQ}>Next Question</button></div>
+            </div>
+          )}
+          {stage==="finished" && (
+            <div className="p-4 rounded-2xl border border-white/10 bg-white/5">
+              <div className="text-2xl font-semibold mb-2">Game Over</div>
+              <div className="mb-3">Thanks for playing!</div>
+              <ol className="space-y-1">{sorted.map(([id,p],idx)=> (
+                <li key={id} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2"><span className="text-sm opacity-70">#{idx+1}</span><span>{p.name}</span></div>
+                  <div className="font-semibold">{p.score}</div>
+                </li>
+              ))}</ol>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Kahoot Join
+    function KahootJoin(){
+      const [pin, setPin] = useState(getQuery().get("pin")||"");
+      const [name, setName] = useLocalStorage("player_name","");
+      const [joined, setJoined] = useState(false);
+      const [stage, setStage] = useState("lobby");
+      const [question, setQuestion] = useState(null);
+      const [choice, setChoice] = useState(null);
+      const [chan, setChan] = useState(null);
+      const [message, setMessage] = useState("");
+      const idRef = useRef(()=> Math.random().toString(36).slice(2));
+      const id = React.useMemo(()=> idRef.current(), []);
+
+      useEffect(()=>{
+        if(!pin) return;
+        const ch = new BroadcastChannel(bcName(pin));
+        setChan(ch);
+        ch.onmessage=(e)=>{
+          const {type,payload}=e.data||{};
+          if(type==="start"){ setStage("waiting"); setMessage("Game starting…"); }
+          if(type==="question"){ setStage("question"); setQuestion(payload.q); setChoice(null); setMessage(""); }
+          if(type==="reveal"){ setStage("reveal"); setMessage("Answer revealed."); }
+          if(type==="leaderboard"){ setStage("leaderboard"); setMessage("Leaderboard updated"); }
+          if(type==="end"){ setStage("end"); setMessage("Game over!"); }
+        };
+        return ()=> ch.close();
+      }, [pin]);
+
+      const join = ()=>{
+        if(!pin||!name) return;
+        const ch = new BroadcastChannel(bcName(pin));
+        setChan(ch);
+        ch.postMessage({type:"join", payload:{id, name}});
+        setJoined(True); // <-- will be fixed below
+      };
+      // fix boolean capital
+      const True = true;
+
+      const sendAnswer = (i)=>{ setChoice(i); chan?.postMessage({type:"answer", payload:{id, choice:i, t: Date.now()}}); };
+
+      if(!joined){
+        return (
+          <div className="space-y-3">
+            <div className="grid md:grid-cols-3 gap-3">
+              <input className="bg-black/30 border border-white/10 rounded-xl p-2" placeholder="Join code" value={pin} onChange={e=>setPin(e.target.value)} />
+              <input className="bg-black/30 border border-white/10 rounded-xl p-2" placeholder="Nickname" value={name} onChange={e=>setName(e.target.value)} />
+              <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5" onClick={join}>Join</button>
+            </div>
+            <div className="text-sm opacity-70">Ask the host for the 6-digit code.</div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="text-sm opacity-80">You are <b>{name}</b> • PIN {pin}</div><Tag>{stage}</Tag>
+          </div>
+          {stage==="waiting" && (<div className="p-4 rounded-2xl border border-white/10 bg-white/5">Waiting for next question… {message}</div>)}
+          {stage==="question" && question && (
+            <div className="p-4 rounded-2xl border border-white/10 bg-white/5">
+              <div className="text-lg font-semibold mb-2">{question.q}</div>
+              <div className="grid gap-2">{question.options.map((o,i)=> (
+                <button key={i} disabled={choice!==null} onClick={()=>sendAnswer(i)} className={"text-left p-3 rounded-xl border " + (choice===i? "border-blue-400 bg-blue-400/10" : "border-white/10 hover:border-white/20")}>
+                  <div className="font-medium">{String.fromCharCode(65+i)}. {o.t}</div>
+                </button>
+              ))}</div>
+            </div>
+          )}
+          {stage==="reveal" && (<div className="p-4 rounded-2xl border border-green-500/40 bg-green-500/10">{message}</div>)}
+          {stage==="leaderboard" && (<div className="p-4 rounded-2xl border border-white/10 bg-white/5">{message}</div>)}
+          {stage==="end" && (<div className="p-4 rounded-2xl border border-white/10 bg-white/5">{message}</div>)}
+        </div>
+      );
+    }
+
+    // Root App
+    function App(){
+      const [tab, setTab] = useLocalStorage("bio_tab", "Flashcards");
+      const cards = window.FLASHCARDS || [];
+      const mcq = window.MCQ || [];
+      const UL = window.UNDERLINED || [];
+      return (
+        <div>
+          <header className="pt-2 pb-2">
+            <h1 className="text-3xl font-bold tracking-tight">BIO100 Study Helper</h1>
+            <p className="opacity-80 mt-1">Chapters 16–18 — Flashcards, Learn, Tricky Quiz, Kahoot, Underline Test</p>
+          </header>
+          <nav className="flex gap-2 my-4">
+            {["Flashcards","Learn","Quiz","Kahoot","Join","Underline Test"].map(name => (
+              <button key={name} onClick={()=>setTab(name)} className={"px-4 py-2 rounded-xl border " + (tab===name? "bg-white/10 border-white/20" : "bg-white/5 border-white/10 hover:border-white/20")}>{name}</button>
+            ))}
+          </nav>
+
+          {tab==="Flashcards" && (<Section title="Flashcards" right={<div className="hidden md:block text-sm opacity-80">Tap card to flip • Use Next/Previous</div>}><Flashcards allCards={cards} /></Section>)}
+          {tab==="Learn" && (<Section title="Learn (Lean Mode)" right={<Tag>Spaced repetition-lite</Tag>}><Learn allCards={cards} /></Section>)}
+          {tab==="Quiz" && (<Section title="Tricky Multiple-Choice Quiz" right={<Tag>Designed to make you think</Tag>}><Quiz bank={mcq} /></Section>)}
+          {tab==="Kahoot" && (<Section title="Kahoot (Host)" right={<Tag>No server needed</Tag>}><KahootHost bank={mcq} /></Section>)}
+          {tab==="Join" && (<Section title="Join a Game" right={<Tag>Enter host code</Tag>}><KahootJoin /></Section>)}
+          {tab==="Underline Test" && (<Section title="Underlined Parts Only" right={<Tag>From your notes</Tag>}><UnderlineTest items={UL} /></Section>)}
+
+          <footer className="py-8 text-xs opacity-60">© BIO100 Study Helper</footer>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
